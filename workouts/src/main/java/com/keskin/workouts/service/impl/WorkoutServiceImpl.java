@@ -5,7 +5,7 @@ import com.keskin.workouts.dto.requests.UpdateWorkoutRequestDto;
 import com.keskin.workouts.dto.WorkoutDto;
 import com.keskin.workouts.entity.Workout;
 import com.keskin.workouts.mapper.WorkoutMapper;
-import com.keskin.workouts.repository.IWorkoutRepository;
+import com.keskin.workouts.repository.WorkoutRepository;
 import com.keskin.workouts.service.IWorkoutService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,15 +18,11 @@ import java.util.List;
 @Transactional
 public class WorkoutServiceImpl implements IWorkoutService {
 
-    private final IWorkoutRepository workoutRepository;
+    private final WorkoutRepository workoutRepository;
     private final WorkoutMapper workoutMapper;
 
     private Workout findWorkout(Long id) {
-        Workout workout =  workoutRepository.findById(id);
-        if (workout == null) {
-            throw  new IllegalArgumentException("Workout not found!");
-        }
-        return workout;
+        return workoutRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Workout not found!"));
     }
 
     @Override
@@ -45,7 +41,13 @@ public class WorkoutServiceImpl implements IWorkoutService {
 
     @Override
     public WorkoutDto createWorkout(CreateWorkoutRequestDto requestDto) {
+        Workout savedWorkout = workoutMapper.createRequestToEntity(requestDto);
 
+        if (savedWorkout.getItems() != null) {
+            savedWorkout.getItems().forEach(item -> item.setWorkout(savedWorkout));
+        }
+        workoutRepository.save(savedWorkout);
+        return workoutMapper.entityToDto(savedWorkout);
     }
 
     @Override
@@ -59,6 +61,6 @@ public class WorkoutServiceImpl implements IWorkoutService {
     @Override
     public void deleteWorkout(Long id) {
         Workout workout = findWorkout(id);
-        workoutRepository.delete(workout.getId());
+        workoutRepository.delete(workout);
     }
 }

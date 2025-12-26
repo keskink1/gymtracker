@@ -13,6 +13,6 @@ public record CreateWorkoutRequestDto(
         @NotBlank(message = "Category cannot be empty")
         @Size(min = 3, message = "Category must be at least 3 characters long")
         String category,
-        List<WorkoutItemRequestDto> items
+        List<CreateWorkoutItemRequestDto> items
 ) {
 }

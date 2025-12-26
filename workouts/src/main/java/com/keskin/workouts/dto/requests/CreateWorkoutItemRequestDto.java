@@ -3,7 +3,7 @@ package com.keskin.workouts.dto.requests;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
-public record WorkoutItemRequestDto(
+public record CreateWorkoutItemRequestDto(
         @NotNull(message = "Exercise ID is required")
         Long exerciseId,
 
