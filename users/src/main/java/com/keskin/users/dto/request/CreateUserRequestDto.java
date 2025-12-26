@@ -1,4 +1,4 @@
-package com.keskin.users.dto;
+package com.keskin.users.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

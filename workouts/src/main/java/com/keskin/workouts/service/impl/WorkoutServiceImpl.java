@@ -41,12 +41,12 @@ public class WorkoutServiceImpl implements IWorkoutService {
 
     @Override
     public WorkoutDto createWorkout(CreateWorkoutRequestDto requestDto) {
-        Workout savedWorkout = workoutMapper.createRequestToEntity(requestDto);
+        Workout workout = workoutMapper.createRequestToEntity(requestDto);
 
-        if (savedWorkout.getItems() != null) {
-            savedWorkout.getItems().forEach(item -> item.setWorkout(savedWorkout));
+        if (workout.getItems() != null) { // let childrne know which workout they belong to
+            workout.getItems().forEach(item -> item.setWorkout(workout));
         }
-        workoutRepository.save(savedWorkout);
+        Workout savedWorkout = workoutRepository.save(workout);
         return workoutMapper.entityToDto(savedWorkout);
     }
 
@@ -54,6 +54,11 @@ public class WorkoutServiceImpl implements IWorkoutService {
     public WorkoutDto updateWorkout(Long id, UpdateWorkoutRequestDto requestDto) {
         Workout workout = findWorkout(id);
         Workout updatedWorkout = workoutMapper.updateRequestToEntity(requestDto, workout);
+
+        if (updatedWorkout.getItems() != null) {
+            updatedWorkout.getItems().forEach(item -> item.setWorkout(updatedWorkout));
+        }
+
         workoutRepository.save(updatedWorkout);
         return workoutMapper.entityToDto(updatedWorkout);
     }

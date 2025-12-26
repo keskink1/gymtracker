@@ -1,10 +1,8 @@
 package com.keskin.users.service;
 
-import com.keskin.users.dto.CreateUserRequestDto;
-import com.keskin.users.dto.UpdateUserRequestDto;
+import com.keskin.users.dto.request.CreateUserRequestDto;
+import com.keskin.users.dto.request.UpdateUserRequestDto;
 import com.keskin.users.dto.UserDto;
-import org.mapstruct.BeanMapping;
-import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import java.util.List;
 

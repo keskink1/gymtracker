@@ -1,7 +1,7 @@
 package com.keskin.users.controller;
 
-import com.keskin.users.dto.CreateUserRequestDto;
-import com.keskin.users.dto.UpdateUserRequestDto;
+import com.keskin.users.dto.request.CreateUserRequestDto;
+import com.keskin.users.dto.request.UpdateUserRequestDto;
 import com.keskin.users.dto.UserDto;
 import com.keskin.users.service.IUserService;
 import jakarta.validation.Valid;
@@ -14,7 +14,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class UserController {
 

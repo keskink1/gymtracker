@@ -1,4 +1,4 @@
-package com.keskin.users.dto;
+package com.keskin.users.dto.request;
 
 import jakarta.validation.constraints.Size;
 
