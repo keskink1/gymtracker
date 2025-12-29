@@ -1,6 +1,6 @@
-package com.keskin.workouts.exception;
+package com.keskin.exercises.exception;
 
-import com.keskin.workouts.dto.response.ErrorResponseDto;
+import com.keskin.exercises.dto.response.ErrorResponseDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -60,4 +60,5 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
+
 }

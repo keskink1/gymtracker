@@ -52,15 +52,13 @@ public class WorkoutServiceImpl implements IWorkoutService {
 
     @Override
     public WorkoutDto updateWorkout(Long id, UpdateWorkoutRequestDto requestDto) {
-        Workout workout = findWorkout(id);
-        Workout updatedWorkout = workoutMapper.updateRequestToEntity(requestDto, workout);
+        Workout existingWorkout = workoutRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Workout not found"));
+        workoutMapper.updateRequestToEntity(requestDto, existingWorkout);
 
-        if (updatedWorkout.getItems() != null) {
-            updatedWorkout.getItems().forEach(item -> item.setWorkout(updatedWorkout));
-        }
+        Workout savedWorkout = workoutRepository.save(existingWorkout);
 
-        workoutRepository.save(updatedWorkout);
-        return workoutMapper.entityToDto(updatedWorkout);
+        return workoutMapper.entityToDto(savedWorkout);
     }
 
     @Override

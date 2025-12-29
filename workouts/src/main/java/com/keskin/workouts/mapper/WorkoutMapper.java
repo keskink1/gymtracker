@@ -1,9 +1,11 @@
 package com.keskin.workouts.mapper;
 
 import com.keskin.workouts.dto.requests.CreateWorkoutRequestDto;
+import com.keskin.workouts.dto.requests.UpdateWorkoutItemRequestDto;
 import com.keskin.workouts.dto.requests.UpdateWorkoutRequestDto;
 import com.keskin.workouts.dto.WorkoutDto;
 import com.keskin.workouts.entity.Workout;
+import com.keskin.workouts.entity.WorkoutItem;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
@@ -17,4 +19,7 @@ public interface WorkoutMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     Workout updateRequestToEntity(UpdateWorkoutRequestDto requestDto, @MappingTarget Workout workout);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateWorkoutItemFromDto(UpdateWorkoutItemRequestDto itemDto, @MappingTarget WorkoutItem item);
 }

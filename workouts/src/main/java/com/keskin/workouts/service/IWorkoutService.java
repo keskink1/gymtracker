@@ -16,4 +16,6 @@ public interface IWorkoutService {
     WorkoutDto updateWorkout(Long id, UpdateWorkoutRequestDto requestDto);
 
     void deleteWorkout(Long id);
+
+
 }

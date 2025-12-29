@@ -14,6 +14,6 @@ public record UpdateWorkoutRequestDto(
         @Size(min = 3, message = "Category must be at least 3 characters long")
         String category,
 
-        List<CreateWorkoutItemRequestDto> items
+        List<UpdateWorkoutItemRequestDto> items
 ) {
 }

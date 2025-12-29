@@ -4,6 +4,7 @@ import com.keskin.users.dto.request.CreateUserRequestDto;
 import com.keskin.users.dto.request.UpdateUserRequestDto;
 import com.keskin.users.dto.UserDto;
 import com.keskin.users.entity.User;
+import com.keskin.users.exception.ResourceAlreadyExistsException;
 import com.keskin.users.mapper.UserMapper;
 import com.keskin.users.repository.UserRepository;
 import com.keskin.users.service.IUserService;
@@ -46,7 +47,7 @@ public class UserServiceImpl implements IUserService {
         Optional<User> existingUser = userRepository.findByEmail(requestDto.email());
 
         if (existingUser.isPresent()) {
-            throw new IllegalArgumentException("Email " + requestDto.email() + " already exists");
+            throw new ResourceAlreadyExistsException("Email " + requestDto.email() + " already exists");
         }
 
             User newUser = userMapper.createRequestToEntity(requestDto);
