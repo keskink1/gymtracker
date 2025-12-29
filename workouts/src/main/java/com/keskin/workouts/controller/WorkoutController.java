@@ -4,6 +4,7 @@ import com.keskin.workouts.dto.WorkoutDto;
 import com.keskin.workouts.dto.requests.CreateWorkoutRequestDto;
 import com.keskin.workouts.dto.requests.UpdateWorkoutRequestDto;
 import com.keskin.workouts.service.IWorkoutService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,11 +17,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/workouts")
 @RequiredArgsConstructor
+@Tag(name = "Workouts page", description = "Manage workouts in this page. Contains, reading, creating, updating and deleting. Add exercises to your workouts.")
 public class WorkoutController {
 
     private final IWorkoutService workoutService;
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<WorkoutDto>> getAll() {
         return ResponseEntity.ok(workoutService.getAll());
     }
@@ -31,7 +33,7 @@ public class WorkoutController {
     }
 
     @PostMapping
-    public ResponseEntity<WorkoutDto> create(@Valid @RequestBody CreateWorkoutRequestDto requestDto) {
+    public ResponseEntity<WorkoutDto> createWorkout(@Valid @RequestBody CreateWorkoutRequestDto requestDto) {
         WorkoutDto savedWorkout = workoutService.createWorkout(requestDto);
 
         URI location = ServletUriComponentsBuilder
@@ -44,13 +46,13 @@ public class WorkoutController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<WorkoutDto> update(@PathVariable Long id,
+    public ResponseEntity<WorkoutDto> updateWorkout(@PathVariable Long id,
                                              @Valid @RequestBody UpdateWorkoutRequestDto requestDto) {
         return ResponseEntity.ok(workoutService.updateWorkout(id, requestDto));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteWorkout(@PathVariable Long id) {
         workoutService.deleteWorkout(id);
         return ResponseEntity.noContent().build();
     }

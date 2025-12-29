@@ -11,5 +11,6 @@ public record UpdateUserRequestDto(
 
         Double height,
         Double weight,
+        @Size(min = 18, max = 90)
         Integer age
 ) {}
