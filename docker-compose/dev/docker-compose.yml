@@ -1,0 +1,141 @@
+services:
+  # --- INFRASTRUCTURE ---
+  configserver:
+    build: ./config-server
+    image: gymtracker/configserver:v1
+    container_name: configserver
+    ports:
+      - "8888:8888"
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=git
+      - SPRING_CLOUD_CONFIG_SERVER_GIT_URI=https://github.com/keskink1/gymtracker-config.git
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
+
+  eurekaserver:
+    build: ./eureka-server
+    image: gymtracker/eurekaserver:v1
+    container_name: eurekaserver
+    ports:
+      - "8761:8761"
+    depends_on:
+      configserver:
+        condition: service_healthy
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
+
+  # --- DATABASES ---
+  userdb:
+    image: postgres:15
+    container_name: userdb
+    extends:
+      file: common-config.yml
+      service: base-postgres-config
+    ports:
+      - "${USER_DB_PORT}:5432"
+    environment:
+      - POSTGRES_DB=userdb
+      - POSTGRES_PASSWORD=${USER_DB_PASSWORD}
+
+  exercisedb:
+    image: postgres:15
+    container_name: exercisedb
+    extends:
+      file: common-config.yml
+      service: base-postgres-config
+    ports:
+      - "${EXERCISE_DB_PORT}:5432"
+    environment:
+      - POSTGRES_DB=exercisedb
+      - POSTGRES_PASSWORD=${EXERCISE_DB_PASSWORD}
+
+  workoutdb:
+    image: postgres:15
+    container_name: workoutdb
+    extends:
+      file: common-config.yml
+      service: base-postgres-config
+    ports:
+      - "${WORKOUT_DB_PORT}:5432"
+    environment:
+      - POSTGRES_DB=workoutdb
+      - POSTGRES_PASSWORD=${WORKOUT_DB_PASSWORD}
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
+
+  # --- MICROSERVICES ---
+  user-service:
+    build: ./user-service
+    image: gymtracker/user-service:v1
+    container_name: user-service
+    extends:
+      file: common-config.yml
+      service: microservice-base
+    environment:
+      - USER_DB_PASSWORD=${USER_DB_PASSWORD}
+    depends_on:
+      userdb:
+        condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
+
+  exercise-service:
+    build: ./exercise-service
+    image: gymtracker/exercise-service:v1
+    container_name: exercise-service
+    extends:
+      file: common-config.yml
+      service: microservice-base
+    environment:
+      - EXERCISE_DB_PASSWORD=${EXERCISE_DB_PASSWORD}
+    depends_on:
+      exercisedb:
+        condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
+
+  workout-service:
+    build: ./workout-service
+    image: gymtracker/workout-service:v1
+    container_name: workout-service
+    extends:
+      file: common-config.yml
+      service: microservice-base
+    environment:
+      - WORKOUT_DB_PASSWORD=${WORKOUT_DB_PASSWORD}
+    depends_on:
+      workoutdb:
+        condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
+
+  gateway:
+    build: ./gateway-service
+    image: gymtracker/gatewayserver:v1
+    container_name: gateway
+    ports:
+      - "8080:8080"
+    extends:
+      file: common-config.yml
+      service: microservice-base
+    depends_on:
+      eurekaserver:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - SPRING_DATA_REDIS_HOST=redis
+
+networks:
+  microservice-network:
+    name: microservice-network
+    driver: bridge

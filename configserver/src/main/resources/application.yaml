@@ -5,11 +5,10 @@ spring:
   application:
     name: configserver
   profiles:
-    active: native
+    active: git
   cloud:
     config:
       server:
-        native:
-          search-locations: file:/Users/kaankeskin/Desktop/gymtracker-config
-        #git:
-          #uri: https://github.com/keskink1/gymtracker-config.git
+        git:
+          uri: https://github.com/keskink1/gymtracker-config.git
+          clone-on-start: true
