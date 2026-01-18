@@ -1,8 +1,6 @@
 package com.keskin.users.dto.request;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 
 public record CreateUserRequestDto(
         @NotBlank(message = "First name cannot be blank")
@@ -23,6 +21,7 @@ public record CreateUserRequestDto(
 
         Double height,
         Double weight,
-        @Size(min = 18, max = 90)
+        @Min(value = 18, message = "Minimum age is 18")
+        @Max(value = 100, message = "Maximum age is 100")
         Integer age
 ) {}

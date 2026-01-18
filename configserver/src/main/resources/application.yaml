@@ -12,3 +12,14 @@ spring:
         git:
           uri: https://github.com/keskink1/gymtracker-config.git
           clone-on-start: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true

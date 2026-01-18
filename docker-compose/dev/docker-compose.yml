@@ -1,7 +1,7 @@
 services:
   # --- INFRASTRUCTURE ---
   configserver:
-    build: ./config-server
+    build: ../../configserver
     image: gymtracker/configserver:v1
     container_name: configserver
     ports:
@@ -13,10 +13,14 @@ services:
       - SPRING_PROFILES_ACTIVE=git
       - SPRING_CLOUD_CONFIG_SERVER_GIT_URI=https://github.com/keskink1/gymtracker-config.git
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
+      test: "curl --fail --silent localhost:8888/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   eurekaserver:
-    build: ./eureka-server
+    build: ../../eurekaserver
     image: gymtracker/eurekaserver:v1
     container_name: eurekaserver
     ports:
@@ -24,6 +28,12 @@ services:
     depends_on:
       configserver:
         condition: service_healthy
+    healthcheck:
+      test: "curl --fail --silent localhost:8761/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     extends:
       file: common-config.yml
       service: network-deploy-service
@@ -68,15 +78,30 @@ services:
   redis:
     image: redis:alpine
     container_name: redis
+    ports:
+      - "6380:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     extends:
       file: common-config.yml
       service: network-deploy-service
 
   # --- MICROSERVICES ---
   user-service:
-    build: ./user-service
+    build: ../../users
     image: gymtracker/user-service:v1
     container_name: user-service
+    ports:
+      - "8081:8081"
+    healthcheck:
+      test: "curl --fail --silent localhost:8081/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     extends:
       file: common-config.yml
       service: microservice-base
@@ -89,9 +114,17 @@ services:
         condition: service_healthy
 
   exercise-service:
-    build: ./exercise-service
+    build: ../../exercises
     image: gymtracker/exercise-service:v1
     container_name: exercise-service
+    ports:
+      - "8082:8082"
+    healthcheck:
+      test: "curl --fail --silent localhost:8082/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     extends:
       file: common-config.yml
       service: microservice-base
@@ -104,9 +137,17 @@ services:
         condition: service_healthy
 
   workout-service:
-    build: ./workout-service
+    build: ../../workouts
     image: gymtracker/workout-service:v1
     container_name: workout-service
+    ports:
+      - "8083:8083"
+    healthcheck:
+      test: "curl --fail --silent localhost:8083/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     extends:
       file: common-config.yml
       service: microservice-base
@@ -119,7 +160,7 @@ services:
         condition: service_healthy
 
   gateway:
-    build: ./gateway-service
+    build: ../../gateway
     image: gymtracker/gatewayserver:v1
     container_name: gateway
     ports:
@@ -132,8 +173,47 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      user-service:
+        condition: service_healthy
     environment:
       - SPRING_DATA_REDIS_HOST=redis
+
+
+  # --- MONITORING ---
+  prometheus:
+    image: prom/prometheus:v3.8.0
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ../observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
+
+  loki:
+    image: grafana/loki:3.6.2
+    container_name: loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
+
+  grafana:
+    image: grafana/grafana:12.3.0
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+      - loki
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
 
 networks:
   microservice-network:

@@ -57,6 +57,7 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public UserDto updateUser(Long id, UpdateUserRequestDto requestDto) {
+        //add existing mail check when free
         User user = findUser(id);
         User updatedUser = userMapper.updateRequestToEntity(requestDto, user);
         userRepository.save(updatedUser);
