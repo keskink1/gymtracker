@@ -1,10 +1,8 @@
 package com.keskin.users.service.impl;
 
-import com.keskin.users.dto.request.CreateUserRequestDto;
 import com.keskin.users.dto.request.UpdateUserRequestDto;
 import com.keskin.users.dto.UserDto;
 import com.keskin.users.entity.User;
-import com.keskin.users.exception.ResourceAlreadyExistsException;
 import com.keskin.users.mapper.UserMapper;
 import com.keskin.users.repository.UserRepository;
 import com.keskin.users.service.IUserService;
@@ -13,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -40,19 +37,6 @@ public class UserServiceImpl implements IUserService {
                 .stream()
                 .map(user -> userMapper.entityToDto(user))
                 .toList();
-    }
-
-    @Override
-    public UserDto createUser(CreateUserRequestDto requestDto) {
-        Optional<User> existingUser = userRepository.findByEmail(requestDto.email());
-
-        if (existingUser.isPresent()) {
-            throw new ResourceAlreadyExistsException("Email " + requestDto.email() + " already exists");
-        }
-
-            User newUser = userMapper.createRequestToEntity(requestDto);
-            User savedUser = userRepository.save(newUser);
-            return userMapper.entityToDto(savedUser);
     }
 
     @Override

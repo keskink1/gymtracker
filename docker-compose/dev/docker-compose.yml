@@ -107,6 +107,8 @@ services:
       service: microservice-base
     environment:
       - USER_DB_PASSWORD=${USER_DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRATION=${JWT_EXPIRATION}
     depends_on:
       userdb:
         condition: service_healthy
@@ -177,6 +179,7 @@ services:
         condition: service_healthy
     environment:
       - SPRING_DATA_REDIS_HOST=redis
+      - JWT_SECRET=${JWT_SECRET}
 
 
   # --- MONITORING ---

@@ -8,10 +8,10 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="eurekaserver" />
-        <module name="gateway" />
         <module name="configserver" />
+        <module name="gateway" />
       </profile>
-      <profile name="Annotation profile for exercises" enabled="true">
+      <profile name="Annotation profile for users" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -21,13 +21,17 @@
           <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct/1.5.5.Final/mapstruct-1.5.5.Final.jar" />
         </processorPath>
         <module name="exercises" />
-        <module name="workouts" />
         <module name="users" />
+        <module name="workouts" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="commonshared" target="21" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="commonshared" options="-parameters" />
       <module name="configserver" options="-parameters" />
       <module name="eurekaserver" options="-parameters" />
       <module name="exercises" options="-parameters" />

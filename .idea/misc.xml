@@ -10,7 +10,13 @@
         <option value="$PROJECT_DIR$/exercises/pom.xml" />
         <option value="$PROJECT_DIR$/workouts/pom.xml" />
         <option value="$PROJECT_DIR$/gateway/pom.xml" />
+        <option value="$PROJECT_DIR$/commonshared/pom.xml" />
       </list>
+    </option>
+    <option name="ignoredFiles">
+      <set>
+        <option value="$PROJECT_DIR$/commonshared/pom.xml" />
+      </set>
     </option>
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">

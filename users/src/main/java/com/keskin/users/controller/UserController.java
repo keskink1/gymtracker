@@ -1,6 +1,5 @@
 package com.keskin.users.controller;
 
-import com.keskin.users.dto.request.CreateUserRequestDto;
 import com.keskin.users.dto.request.UpdateUserRequestDto;
 import com.keskin.users.dto.UserDto;
 import com.keskin.users.service.IUserService;
@@ -9,9 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -30,21 +27,6 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<UserDto> getUser(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUser(id));
-    }
-
-    @PostMapping
-    public ResponseEntity<UserDto> createUser(
-            @Valid @RequestBody CreateUserRequestDto requestDto,
-            UriComponentsBuilder uriBuilder) {
-
-        UserDto createdUser = userService.createUser(requestDto);
-
-        URI location = uriBuilder
-                .path("/api/users/{id}")
-                .buildAndExpand(createdUser.id())
-                .toUri();
-
-        return ResponseEntity.created(location).body(createdUser);
     }
 
     @PutMapping("/{id}")
