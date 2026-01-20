@@ -24,7 +24,9 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
         this.validator = validator;
     }
 
-    public static class Config {}
+    public static class Config {
+        // dont delete, in future might be useful. and needed for inheritance
+    }
 
     @Override
     public GatewayFilter apply(Config config) {
@@ -44,16 +46,21 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                 try {
                     SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
 
-                    String userEmail = Jwts.parser()
+                    var claims = Jwts.parser()
                             .verifyWith(key)
                             .build()
                             .parseSignedClaims(authHeader)
-                            .getPayload()
-                            .getSubject();
+                            .getPayload();
 
-                    exchange.getRequest().mutate()
-                            .header("loggedInUser", userEmail)
-                            .build();
+                    String userEmail = claims.getSubject();
+                    String role = claims.get("role", String.class);
+
+                    return chain.filter(exchange.mutate()
+                            .request(exchange.getRequest().mutate()
+                                    .header("loggedInUser", userEmail)
+                                    .header("userRole", role)
+                                    .build())
+                            .build());
 
                 } catch (Exception e) {
                     exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);

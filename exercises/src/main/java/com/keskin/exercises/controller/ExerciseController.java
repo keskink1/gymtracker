@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/exercises")
 @RequiredArgsConstructor
-@Tag(name = "Exercises page", description = "Manage exercises in this page. Contains, reading, creating, updating and deleting.")
+@Tag(name = "Exercises page", description = "Manage exercises in this page.")
 public class ExerciseController {
 
     private final IExerciseService exerciseService;
@@ -37,7 +37,8 @@ public class ExerciseController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ExerciseDto> updateExercise(@PathVariable Long id, @Valid @RequestBody UpdateExerciseRequestDto requestDto) {
+    public ResponseEntity<ExerciseDto> updateExercise(@PathVariable Long id,
+                                                      @Valid @RequestBody UpdateExerciseRequestDto requestDto) {
         return ResponseEntity.ok(exerciseService.updateExercise(requestDto, id));
     }
 

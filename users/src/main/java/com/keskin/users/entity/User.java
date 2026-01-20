@@ -37,6 +37,9 @@ public class User {
     @Column(name = "age")
     private Integer age;
 
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
     @Column(name = "is_active")
     private boolean isActive = true;
 }

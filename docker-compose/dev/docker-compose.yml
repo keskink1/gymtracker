@@ -94,8 +94,6 @@ services:
     build: ../../users
     image: gymtracker/user-service:v1
     container_name: user-service
-    ports:
-      - "8081:8081"
     healthcheck:
       test: "curl --fail --silent localhost:8081/actuator/health/readiness | grep UP || exit 1"
       interval: 10s
@@ -119,8 +117,6 @@ services:
     build: ../../exercises
     image: gymtracker/exercise-service:v1
     container_name: exercise-service
-    ports:
-      - "8082:8082"
     healthcheck:
       test: "curl --fail --silent localhost:8082/actuator/health/readiness | grep UP || exit 1"
       interval: 10s
@@ -142,8 +138,6 @@ services:
     build: ../../workouts
     image: gymtracker/workout-service:v1
     container_name: workout-service
-    ports:
-      - "8083:8083"
     healthcheck:
       test: "curl --fail --silent localhost:8083/actuator/health/readiness | grep UP || exit 1"
       interval: 10s

@@ -3,6 +3,7 @@ package com.keskin.users.service.impl;
 import com.keskin.users.dto.UserDto;
 import com.keskin.users.dto.request.LoginRequestDto;
 import com.keskin.users.dto.request.RegisterRequestDto;
+import com.keskin.users.entity.Role;
 import com.keskin.users.entity.User;
 import com.keskin.users.exception.ResourceAlreadyExistsException;
 import com.keskin.users.jwt.JwtService;
@@ -12,9 +13,11 @@ import com.keskin.users.service.IAuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
+@Transactional
 public class AuthServiceImpl implements IAuthService {
 
     private final UserRepository userRepository;
@@ -33,6 +36,8 @@ public class AuthServiceImpl implements IAuthService {
         }
 
         User user = userMapper.createRequestToEntity(request);
+        user.setRole(Role.USER);
+        user.setActive(true);
 
         String encodedPassword = passwordEncoder.encode(request.password());
         user.setPassword(encodedPassword);
@@ -48,7 +53,7 @@ public class AuthServiceImpl implements IAuthService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found!"));
 
         if (passwordEncoder.matches(request.password(), user.getPassword())) {
-            return jwtService.createToken(user.getEmail());
+            return jwtService.createToken(user.getEmail(), user.getRole().name());
         } else {
             throw new RuntimeException("Wrong password!");
         }

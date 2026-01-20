@@ -28,6 +28,9 @@ public class Workout {
     @OneToMany(mappedBy = "workout", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<WorkoutItem> items;
 
+    @Column(name = "user_email", nullable = false)
+    private String userEmail;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

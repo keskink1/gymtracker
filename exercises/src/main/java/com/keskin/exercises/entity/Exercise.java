@@ -16,7 +16,7 @@ public class Exercise {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String name;
 
     @Column(name = "muscle_group", nullable = false)
@@ -24,4 +24,7 @@ public class Exercise {
 
     @Column(name = "description")
     private String description;
+
+    @Column(name = "user_email", nullable = false)
+    private String userEmail;
 }
