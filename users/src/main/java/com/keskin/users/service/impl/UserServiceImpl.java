@@ -32,7 +32,13 @@ public class UserServiceImpl implements IUserService {
      * Private method for centralized managing
      */
     private void validateOwnershipOrAdmin(User user) {
-        boolean isOwner = user.getEmail().equals(UserContextHolder.getEmail());
+        String currentEmail = UserContextHolder.getEmail();
+
+        if (currentEmail == null) {
+            throw new AccessDeniedException("User email not found in context!");
+        }
+
+        boolean isOwner = user.getEmail().equalsIgnoreCase(currentEmail.trim());
         boolean isAdmin = UserContextHolder.isAdmin();
 
         if (!isOwner && !isAdmin) {

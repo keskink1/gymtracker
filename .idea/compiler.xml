@@ -11,7 +11,7 @@
         <module name="configserver" />
         <module name="gateway" />
       </profile>
-      <profile name="Annotation profile for workouts" enabled="true">
+      <profile name="Annotation profile for users" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -21,8 +21,8 @@
           <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct/1.5.5.Final/mapstruct-1.5.5.Final.jar" />
         </processorPath>
         <module name="exercises" />
-        <module name="workouts" />
         <module name="users" />
+        <module name="workouts" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
