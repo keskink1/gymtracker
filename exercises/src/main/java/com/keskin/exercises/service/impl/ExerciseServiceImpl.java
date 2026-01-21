@@ -1,6 +1,9 @@
 package com.keskin.exercises.service.impl;
 
+import com.keskin.exercises.config.RabbitMQConfig;
 import com.keskin.exercises.config.UserContextHolder;
+import com.keskin.exercises.dto.AdminExerciseDto;
+import com.keskin.exercises.dto.message.ExerciseEventDto;
 import com.keskin.exercises.dto.ExerciseDto;
 import com.keskin.exercises.dto.request.CreateExerciseRequestDto;
 import com.keskin.exercises.dto.request.UpdateExerciseRequestDto;
@@ -10,6 +13,8 @@ import com.keskin.exercises.mapper.ExerciseMapper;
 import com.keskin.exercises.repository.ExerciseRepository;
 import com.keskin.exercises.service.IExerciseService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,10 +23,12 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 @Transactional
+@Slf4j
 public class ExerciseServiceImpl implements IExerciseService {
 
     private final ExerciseMapper exerciseMapper;
     private final ExerciseRepository exerciseRepository;
+    private final RabbitTemplate rabbitTemplate;
 
     private Exercise findAndValidate(Long id) {
         if (UserContextHolder.isAdmin()) {
@@ -36,19 +43,22 @@ public class ExerciseServiceImpl implements IExerciseService {
 
     @Override
     public List<ExerciseDto> getAll() {
-        if (UserContextHolder.isAdmin()) {
-            return exerciseRepository.findAll()
-                    .stream()
-                    .map(exerciseMapper::entityToDto)
-                    .toList();
-        }
-
         String email = UserContextHolder.getEmail();
         if (email == null || email.isBlank()) return List.of();
 
         return exerciseRepository.findAllByUserEmail(email.trim())
                 .stream()
-                .map(exerciseMapper::entityToDto)
+                .map(exerciseMapper::entityToDto) // Normal DTO
+                .toList();
+    }
+
+    public List<AdminExerciseDto> getAllForAdmin() {
+        if (!UserContextHolder.isAdmin()) {
+            throw new RuntimeException("Unauthorized!");
+        }
+        return exerciseRepository.findAll()
+                .stream()
+                .map(exerciseMapper::entityToAdminDto)
                 .toList();
     }
 
@@ -56,6 +66,12 @@ public class ExerciseServiceImpl implements IExerciseService {
     public ExerciseDto getExercise(Long id) {
         Exercise exercise = findAndValidate(id);
         return exerciseMapper.entityToDto(exercise);
+    }
+
+    @Override
+    public AdminExerciseDto getExerciseForAdmin(Long id) {
+        Exercise exercise = findAndValidate(id);
+        return exerciseMapper.entityToAdminDto(exercise);
     }
 
     @Override
@@ -67,7 +83,21 @@ public class ExerciseServiceImpl implements IExerciseService {
         Exercise newExercise = exerciseMapper.createRequestToEntity(requestDto);
         newExercise.setUserEmail(UserContextHolder.getEmail());
 
-        return exerciseMapper.entityToDto(exerciseRepository.save(newExercise));
+        exerciseRepository.save(newExercise);
+
+        ExerciseEventDto createEvent = new ExerciseEventDto(
+                newExercise.getId(),
+                newExercise.getName(),
+                newExercise.getMuscleGroup()
+        );
+
+        rabbitTemplate.convertAndSend(
+                RabbitMQConfig.EXCHANGE,
+                RabbitMQConfig.ROUTING_KEY,
+                createEvent
+        );
+
+        return exerciseMapper.entityToDto(newExercise);
     }
 
     @Override
@@ -86,7 +116,22 @@ public class ExerciseServiceImpl implements IExerciseService {
             exercise.setUserEmail(UserContextHolder.getEmail());
         }
 
-        return exerciseMapper.entityToDto(exerciseRepository.save(exercise));
+        Exercise savedExercise = exerciseRepository.save(exercise);
+
+        ExerciseEventDto updateEvent = new ExerciseEventDto(
+                exercise.getId(),
+                exercise.getName(),
+                exercise.getMuscleGroup()
+        );
+
+        rabbitTemplate.convertAndSend(
+                RabbitMQConfig.EXCHANGE,
+                RabbitMQConfig.ROUTING_KEY,
+                updateEvent
+        );
+
+        log.info("Update message sent: {}", exercise.getName());
+        return exerciseMapper.entityToDto(savedExercise);
     }
 
     @Override

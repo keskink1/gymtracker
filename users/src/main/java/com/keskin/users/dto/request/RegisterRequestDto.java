@@ -20,7 +20,7 @@ public record RegisterRequestDto(
         String password,
 
         @NotBlank(message = "Password confirmation cannot be blank")
-        String confirmPassword, // İkinci şifre kontrolü için
+        String confirmPassword,
 
         @Min(value = 1, message = "Height must be positive")
         Double height,

@@ -15,12 +15,13 @@ public class WorkoutItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workout_id")
     private Workout workout;
 
-    @Column(name = "exercise_id")
-    private Long exerciseId;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "local_exercise_id")
+    private LocalExercise exercise;
 
     @Column(name = "sets")
     private int sets;

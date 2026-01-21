@@ -1,5 +1,7 @@
 package com.keskin.exercises.controller;
 
+import com.keskin.exercises.config.UserContextHolder;
+import com.keskin.exercises.dto.AdminExerciseDto;
 import com.keskin.exercises.dto.ExerciseDto;
 import com.keskin.exercises.dto.request.CreateExerciseRequestDto;
 import com.keskin.exercises.dto.request.UpdateExerciseRequestDto;
@@ -22,12 +24,18 @@ public class ExerciseController {
     private final IExerciseService exerciseService;
 
     @GetMapping("/all")
-    public ResponseEntity<List<ExerciseDto>> getAll() {
+    public ResponseEntity<?> getAll() {
+        if (UserContextHolder.isAdmin()) {
+            return ResponseEntity.ok(exerciseService.getAllForAdmin());
+        }
         return ResponseEntity.ok(exerciseService.getAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ExerciseDto> getById(@PathVariable Long id) {
+    public ResponseEntity<?> getExercise(@PathVariable Long id) {
+        if (UserContextHolder.isAdmin()) {
+            return ResponseEntity.ok(exerciseService.getExerciseForAdmin(id));
+        }
         return ResponseEntity.ok(exerciseService.getExercise(id));
     }
 

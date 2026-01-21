@@ -89,6 +89,21 @@ services:
       file: common-config.yml
       service: network-deploy-service
 
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "check_running" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
+
   # --- MICROSERVICES ---
   user-service:
     build: ../../users
@@ -112,6 +127,8 @@ services:
         condition: service_healthy
       eurekaserver:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
 
   exercise-service:
     build: ../../exercises
@@ -133,6 +150,8 @@ services:
         condition: service_healthy
       eurekaserver:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
 
   workout-service:
     build: ../../workouts
@@ -153,6 +172,8 @@ services:
       workoutdb:
         condition: service_healthy
       eurekaserver:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
 
   gateway:

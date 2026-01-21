@@ -1,1 +1,2 @@
-ALTER TABLE workouts ADD COLUMN user_email VARCHAR(255);
+ALTER TABLE workouts
+ADD COLUMN user_email VARCHAR(255);

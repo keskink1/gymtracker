@@ -1,5 +1,6 @@
 package com.keskin.exercises.mapper;
 
+import com.keskin.exercises.dto.AdminExerciseDto;
 import com.keskin.exercises.dto.ExerciseDto;
 import com.keskin.exercises.dto.request.CreateExerciseRequestDto;
 import com.keskin.exercises.dto.request.UpdateExerciseRequestDto;
@@ -12,6 +13,8 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(componentModel = "spring")
 public interface ExerciseMapper {
     ExerciseDto entityToDto(Exercise exercise);
+
+    AdminExerciseDto entityToAdminDto(Exercise exercise);
 
     Exercise createRequestToEntity(CreateExerciseRequestDto requestDto);
 
