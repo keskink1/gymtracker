@@ -1,0 +1,1 @@
+ALTER TABLE local_exercises ADD COLUMN active BOOLEAN DEFAULT TRUE;

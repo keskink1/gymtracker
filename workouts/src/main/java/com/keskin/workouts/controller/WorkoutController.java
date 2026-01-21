@@ -2,6 +2,7 @@ package com.keskin.workouts.controller;
 
 import com.keskin.workouts.dto.WorkoutDto;
 import com.keskin.workouts.dto.requests.CreateWorkoutRequestDto;
+import com.keskin.workouts.dto.requests.UpdateWorkoutItemRequestDto;
 import com.keskin.workouts.dto.requests.UpdateWorkoutRequestDto;
 import com.keskin.workouts.service.IWorkoutService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -54,6 +55,17 @@ public class WorkoutController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteWorkout(@PathVariable Long id) {
         workoutService.deleteWorkout(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{workoutId}/items/{itemId}")
+    public ResponseEntity<Void> updateWorkoutItem(
+            @PathVariable Long workoutId,
+            @PathVariable Long itemId,
+            @RequestBody @Valid UpdateWorkoutItemRequestDto requestDto) {
+
+        workoutService.updateWorkoutItem(workoutId, itemId, requestDto);
+
         return ResponseEntity.noContent().build();
     }
 }

@@ -2,6 +2,7 @@ package com.keskin.workouts.service.impl;
 
 import com.keskin.workouts.config.UserContextHolder;
 import com.keskin.workouts.dto.requests.CreateWorkoutRequestDto;
+import com.keskin.workouts.dto.requests.UpdateWorkoutItemRequestDto;
 import com.keskin.workouts.dto.requests.UpdateWorkoutRequestDto;
 import com.keskin.workouts.dto.WorkoutDto;
 import com.keskin.workouts.entity.LocalExercise;
@@ -12,11 +13,14 @@ import com.keskin.workouts.repository.LocalExerciseRepository;
 import com.keskin.workouts.repository.WorkoutRepository;
 import com.keskin.workouts.service.IWorkoutService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.hibernate.jdbc.Work;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -73,6 +77,7 @@ public class WorkoutServiceImpl implements IWorkoutService {
                     .stream()
                     .map(itemDto -> {
                         LocalExercise exercise = localExerciseRepository.findById(itemDto.exerciseId())
+                                .filter(LocalExercise::isActive)
                                 .orElseThrow(() -> new IllegalArgumentException("Exercise not found: " + itemDto.exerciseId())); // prevent user from creating fake id
 
                         return WorkoutItem.builder()
@@ -94,23 +99,34 @@ public class WorkoutServiceImpl implements IWorkoutService {
 
     @Override
     public WorkoutDto updateWorkout(Long id, UpdateWorkoutRequestDto requestDto) {
-        Workout exercise = findAndValidate(id);
-        workoutMapper.updateRequestToEntity(requestDto, exercise);
+        Workout workout = findAndValidate(id);
+        workoutMapper.updateRequestToEntity(requestDto, workout);
 
         if (!UserContextHolder.isAdmin()) {
-            exercise.setUserEmail(UserContextHolder.getEmail());
+            workout.setUserEmail(UserContextHolder.getEmail());
         }
 
-        if (exercise.getItems() != null) {
-            exercise.getItems().forEach(item -> item.setWorkout(exercise));
-        }
-
-        return workoutMapper.entityToDto(workoutRepository.save(exercise));
+        Workout updatedWorkout = workoutRepository.save(workout);
+        return workoutMapper.entityToDto(updatedWorkout);
     }
 
     @Override
     public void deleteWorkout(Long id) {
         Workout workout = findAndValidate(id);
         workoutRepository.delete(workout);
+    }
+
+    @Override
+    public void updateWorkoutItem(Long workoutId, Long itemId, UpdateWorkoutItemRequestDto request) {
+        Workout workout = findAndValidate(workoutId);
+
+        WorkoutItem item = workout.getItems().stream()
+                .filter(i -> i.getId().equals(itemId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("This item does not belong to this workout!"));
+
+        workoutMapper.updateWorkoutItemFromDto(request, item);
+
+        log.info("Item {} in Workout {} updated by {}", itemId, workoutId, UserContextHolder.getEmail());
     }
 }

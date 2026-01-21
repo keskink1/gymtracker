@@ -1,7 +1,7 @@
 CREATE TABLE workouts
 (
     id           BIGSERIAL PRIMARY KEY,
-    user_id      BIGINT       NOT NULL,
+    user_id      BIGINT,
     workout_name VARCHAR(255) NOT NULL,
     category     VARCHAR(255),
     created_at   TIMESTAMP WITHOUT TIME ZONE

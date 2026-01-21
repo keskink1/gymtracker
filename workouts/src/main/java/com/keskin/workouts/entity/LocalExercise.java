@@ -24,4 +24,7 @@ public class LocalExercise {
 
     @Column(name = "muscle_group")
     private String muscleGroup;
+
+    @Builder.Default
+    private boolean active = true;
 }

@@ -84,7 +84,7 @@ public class UserServiceImpl implements IUserService {
         User user = findUser(id);
         validateOwnershipOrAdmin(user);
 
-        user.setActive(!user.isActive());
+        user.setActive(!user.getActive());
         userRepository.save(user);
     }
 }

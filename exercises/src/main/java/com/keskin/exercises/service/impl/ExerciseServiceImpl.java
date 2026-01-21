@@ -3,7 +3,8 @@ package com.keskin.exercises.service.impl;
 import com.keskin.exercises.config.RabbitMQConfig;
 import com.keskin.exercises.config.UserContextHolder;
 import com.keskin.exercises.dto.AdminExerciseDto;
-import com.keskin.exercises.dto.message.ExerciseEventDto;
+import com.keskin.exercises.dto.message.ExerciseDeletedEventDto;
+import com.keskin.exercises.dto.message.ExerciseCreatedEventDto;
 import com.keskin.exercises.dto.ExerciseDto;
 import com.keskin.exercises.dto.request.CreateExerciseRequestDto;
 import com.keskin.exercises.dto.request.UpdateExerciseRequestDto;
@@ -48,7 +49,7 @@ public class ExerciseServiceImpl implements IExerciseService {
 
         return exerciseRepository.findAllByUserEmail(email.trim())
                 .stream()
-                .map(exerciseMapper::entityToDto) // Normal DTO
+                .map(exerciseMapper::entityToDto)
                 .toList();
     }
 
@@ -85,7 +86,7 @@ public class ExerciseServiceImpl implements IExerciseService {
 
         exerciseRepository.save(newExercise);
 
-        ExerciseEventDto createEvent = new ExerciseEventDto(
+        ExerciseCreatedEventDto createEvent = new ExerciseCreatedEventDto(
                 newExercise.getId(),
                 newExercise.getName(),
                 newExercise.getMuscleGroup()
@@ -93,7 +94,7 @@ public class ExerciseServiceImpl implements IExerciseService {
 
         rabbitTemplate.convertAndSend(
                 RabbitMQConfig.EXCHANGE,
-                RabbitMQConfig.ROUTING_KEY,
+                RabbitMQConfig.CREATE_ROUTING_KEY,
                 createEvent
         );
 
@@ -118,7 +119,7 @@ public class ExerciseServiceImpl implements IExerciseService {
 
         Exercise savedExercise = exerciseRepository.save(exercise);
 
-        ExerciseEventDto updateEvent = new ExerciseEventDto(
+        ExerciseCreatedEventDto updateEvent = new ExerciseCreatedEventDto(
                 exercise.getId(),
                 exercise.getName(),
                 exercise.getMuscleGroup()
@@ -126,7 +127,7 @@ public class ExerciseServiceImpl implements IExerciseService {
 
         rabbitTemplate.convertAndSend(
                 RabbitMQConfig.EXCHANGE,
-                RabbitMQConfig.ROUTING_KEY,
+                RabbitMQConfig.CREATE_ROUTING_KEY,
                 updateEvent
         );
 
@@ -138,5 +139,13 @@ public class ExerciseServiceImpl implements IExerciseService {
     public void deleteExercise(Long id) {
         Exercise exercise = findAndValidate(id);
         exerciseRepository.delete(exercise);
+
+        ExerciseDeletedEventDto deleteEvent = new ExerciseDeletedEventDto(id);
+
+        rabbitTemplate.convertAndSend(
+                RabbitMQConfig.EXCHANGE,
+                RabbitMQConfig.DELETE_ROUTING_KEY,
+                deleteEvent
+        );
     }
 }

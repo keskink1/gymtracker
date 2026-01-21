@@ -11,6 +11,5 @@ public record UserDto(
         Double height,
         Double weight,
         Integer age,
-        boolean isActive
-) {
+        Boolean active) {
 }

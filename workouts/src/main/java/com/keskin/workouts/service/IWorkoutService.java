@@ -1,6 +1,8 @@
 package com.keskin.workouts.service;
 
+import com.keskin.workouts.dto.WorkoutItemDto;
 import com.keskin.workouts.dto.requests.CreateWorkoutRequestDto;
+import com.keskin.workouts.dto.requests.UpdateWorkoutItemRequestDto;
 import com.keskin.workouts.dto.requests.UpdateWorkoutRequestDto;
 import com.keskin.workouts.dto.WorkoutDto;
 
@@ -17,5 +19,6 @@ public interface IWorkoutService {
 
     void deleteWorkout(Long id);
 
+    void updateWorkoutItem(Long workoutId, Long itemId, UpdateWorkoutItemRequestDto request);
 
 }

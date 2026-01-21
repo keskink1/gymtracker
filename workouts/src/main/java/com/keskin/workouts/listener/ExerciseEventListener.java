@@ -1,6 +1,8 @@
 package com.keskin.workouts.listener;
 
-import com.keskin.workouts.dto.message.ExerciseEventDto;
+import com.keskin.workouts.config.RabbitMQConfig;
+import com.keskin.workouts.dto.message.ExerciseCreatedEventDto;
+import com.keskin.workouts.dto.message.ExerciseDeletedEventDto;
 import com.keskin.workouts.service.ILocalExerciseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,11 +16,15 @@ public class ExerciseEventListener {
 
     private final ILocalExerciseService localExerciseService;
 
-    @RabbitListener(queues = "exercise.queue")
-    public void handleExerciseCreated(ExerciseEventDto event) {
-        log.info("New exercise message receieved! Routing it to service, ID: {}, name: {}, muscle group : {}",
-                event.getId(), event.getName(), event.getMuscleGroup());
-
+    @RabbitListener(queues = RabbitMQConfig.CREATE_QUEUE)
+    public void handleExerciseCreated(ExerciseCreatedEventDto event) {
+        log.info("Create/Update message received for ID: {}", event.id());
         localExerciseService.saveOrUpdateExercise(event);
+    }
+
+    @RabbitListener(queues = RabbitMQConfig.DELETE_QUEUE)
+    public void handleExerciseDeleted(ExerciseDeletedEventDto event) {
+        log.info("Delete message received for ID: {}", event.id());
+        localExerciseService.softDeleteLocalExercise(event.id());
     }
 }
