@@ -9,10 +9,7 @@ import com.keskin.users.service.IAuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -47,5 +44,11 @@ public class AuthController {
     public ResponseEntity<AuthResponse> refresh(@RequestBody RefreshTokenRequest request) {
         AuthResponse response = authService.refreshToken(request.refreshToken());
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(@RequestParam String email) {
+        authService.logout(email);
+        return ResponseEntity.ok("Successfully logged out and token deleted from Redis.");
     }
 }

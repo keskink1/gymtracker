@@ -4,11 +4,11 @@ import com.keskin.users.config.UserContextHolder;
 import com.keskin.users.dto.request.UpdateUserRequestDto;
 import com.keskin.users.dto.UserDto;
 import com.keskin.users.entity.User;
+import com.keskin.users.exception.InvalidTokenException;
 import com.keskin.users.mapper.UserMapper;
 import com.keskin.users.repository.UserRepository;
 import com.keskin.users.service.IUserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,14 +35,14 @@ public class UserServiceImpl implements IUserService {
         String currentEmail = UserContextHolder.getEmail();
 
         if (currentEmail == null) {
-            throw new AccessDeniedException("User email not found in context!");
+            throw new InvalidTokenException("User email not found in context!");
         }
 
         boolean isOwner = user.getEmail().equalsIgnoreCase(currentEmail.trim());
         boolean isAdmin = UserContextHolder.isAdmin();
 
         if (!isOwner && !isAdmin) {
-            throw new AccessDeniedException("You don't have permission for this action!");
+            throw new InvalidTokenException("You don't have permission for this action!");
         }
     }
 
@@ -57,7 +57,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     public List<UserDto> getAllUsers() {
         if (!UserContextHolder.isAdmin()) {
-            throw new AccessDeniedException("Only admins can list all users!");
+            throw new InvalidTokenException("Only admins can list all users!");
         }
         return userRepository.findAll()
                 .stream()

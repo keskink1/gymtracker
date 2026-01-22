@@ -14,7 +14,6 @@ import com.keskin.workouts.repository.WorkoutRepository;
 import com.keskin.workouts.service.IWorkoutService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.jdbc.Work;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +38,12 @@ public class WorkoutServiceImpl implements IWorkoutService {
         String email = UserContextHolder.getEmail().trim();
         return workoutRepository.findByIdAndUserEmail(id, email)
                 .orElseThrow(() -> new IllegalArgumentException("Workout not found!"));
+    }
+
+    private LocalExercise findActiveExercise(Long id) {
+        return localExerciseRepository.findById(id)
+                .filter(LocalExercise::isActive)
+                .orElseThrow(() -> new IllegalArgumentException("Exercise not found: " + id));
     }
 
     @Override
@@ -67,35 +72,26 @@ public class WorkoutServiceImpl implements IWorkoutService {
 
     @Override
     public WorkoutDto createWorkout(CreateWorkoutRequestDto requestDto) {
-        Workout workout = new Workout();
-        workout.setWorkoutName(requestDto.workoutName());
-        workout.setCategory(requestDto.category());
+        Workout workout = workoutMapper.createRequestToEntity(requestDto);
         workout.setUserEmail(UserContextHolder.getEmail());
 
-        if (requestDto.items() != null && !requestDto.items().isEmpty()) {
+        if (requestDto.items() != null) {
             List<WorkoutItem> items = requestDto.items()
                     .stream()
                     .map(itemDto -> {
-                        LocalExercise exercise = localExerciseRepository.findById(itemDto.exerciseId())
-                                .filter(LocalExercise::isActive)
-                                .orElseThrow(() -> new IllegalArgumentException("Exercise not found: " + itemDto.exerciseId())); // prevent user from creating fake id
-
-                        return WorkoutItem.builder()
-                                .workout(workout)
-                                .exercise(exercise)
-                                .sets(itemDto.sets())
-                                .reps(itemDto.reps())
-                                .weight(itemDto.weight())
-                                .build();
-                    })
-                    .toList();
+                        WorkoutItem item = workoutMapper.workoutItemRequestToEntity(itemDto);
+                        item.setExercise(findActiveExercise(itemDto.exerciseId()));
+                        item.setWorkout(workout);
+                        return item;
+                    }).toList();
 
             workout.setItems(items);
         }
 
-        Workout savedWorkout = workoutRepository.save(workout);
-        return workoutMapper.entityToDto(savedWorkout);
+        return workoutMapper.entityToDto(workoutRepository.save(workout));
     }
+
+
 
     @Override
     public WorkoutDto updateWorkout(Long id, UpdateWorkoutRequestDto requestDto) {

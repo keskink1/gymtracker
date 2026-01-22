@@ -1,6 +1,7 @@
 package com.keskin.workouts.mapper;
 
 import com.keskin.workouts.dto.WorkoutItemDto;
+import com.keskin.workouts.dto.requests.CreateWorkoutItemRequestDto;
 import com.keskin.workouts.dto.requests.CreateWorkoutRequestDto;
 import com.keskin.workouts.dto.requests.UpdateWorkoutItemRequestDto;
 import com.keskin.workouts.dto.requests.UpdateWorkoutRequestDto;
@@ -17,6 +18,13 @@ public interface WorkoutMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     Workout updateRequestToEntity(UpdateWorkoutRequestDto requestDto, @MappingTarget Workout workout);
+
+
+    //ignore fields because types are different
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "exercise", ignore = true)
+    @Mapping(target = "workout", ignore = true)
+    WorkoutItem workoutItemRequestToEntity(CreateWorkoutItemRequestDto requestDto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateWorkoutItemFromDto(UpdateWorkoutItemRequestDto itemDto, @MappingTarget WorkoutItem item);

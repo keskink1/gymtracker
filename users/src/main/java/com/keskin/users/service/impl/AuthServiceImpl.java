@@ -7,6 +7,7 @@ import com.keskin.users.dto.response.AuthResponse;
 import com.keskin.users.entity.RefreshToken;
 import com.keskin.users.entity.Role;
 import com.keskin.users.entity.User;
+import com.keskin.users.exception.InvalidTokenException;
 import com.keskin.users.exception.ResourceAlreadyExistsException;
 import com.keskin.users.jwt.JwtService;
 import com.keskin.users.mapper.UserMapper;
@@ -68,7 +69,7 @@ public class AuthServiceImpl implements IAuthService {
                     .email(user.getEmail())
                     .build();
         } else {
-            throw new RuntimeException("Wrong password!");
+            throw new InvalidTokenException("Wrong password!");
         }
     }
 
@@ -77,7 +78,7 @@ public class AuthServiceImpl implements IAuthService {
         RefreshToken refreshToken = refreshTokenService.verifyRefreshToken(requestToken);
 
         User user = userRepository.findByEmail(refreshToken.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found!"));
+                .orElseThrow(() -> new InvalidTokenException("User not found!"));
 
         String newAccessToken = jwtService.createToken(user.getEmail(), user.getRole().name());
 
@@ -86,5 +87,10 @@ public class AuthServiceImpl implements IAuthService {
                 .refreshToken(refreshToken.getToken())
                 .email(user.getEmail())
                 .build();
+    }
+
+    @Override
+    public void logout(String email) {
+        refreshTokenService.deleteByEmail(email);
     }
 }
